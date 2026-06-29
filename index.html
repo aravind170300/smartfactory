@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Floor Tracker</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+        select { width: 100%; padding: 15px; margin-bottom: 20px; font-size: 16px; }
+        #reader { width: 100%; margin-bottom: 20px; }
+        #status { padding: 15px; text-align: center; font-weight: bold; font-size: 18px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .scanning { background-color: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+
+    <h2>Workstation Scanner</h2>
+    
+    <label for="workstation">Select Workstation:</label>
+    <select id="workstation">
+        <option value="WS-01">Workstation 01</option>
+        <option value="WS-02">Workstation 02</option>
+        <option value="WS-03">Workstation 03</option>
+    </select>
+
+    <div id="reader"></div>
+    <div id="status" class="scanning">Waiting for scan...</div>
+
+    <script>
+        // --- PASTE YOUR GOOGLE APPS SCRIPT URL HERE ---
+        const GOOGLE_SCRIPT_URL = "YOUR_WEB_APP_URL_HERE";
+
+        const statusDiv = document.getElementById('status');
+        let isProcessing = false;
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (isProcessing) return; // Prevent rapid duplicate scans
+            isProcessing = true;
+            
+            const workstationId = document.getElementById('workstation').value;
+            statusDiv.textContent = "Processing " + decodedText + "...";
+            statusDiv.className = "scanning";
+
+            // Send data to Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Required for Google Apps Script requests from a browser
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    workstationId: workstationId,
+                    productId: decodedText
+                })
+            }).then(() => {
+                // Since no-cors hides the exact response body, we assume success if it doesn't throw
+                statusDiv.textContent = "Scanned: " + decodedText;
+                statusDiv.className = "success";
+                
+                // Reset scanner after 3 seconds
+                setTimeout(() => {
+                    statusDiv.textContent = "Waiting for next scan...";
+                    statusDiv.className = "scanning";
+                    isProcessing = false;
+                }, 3000);
+            }).catch(error => {
+                statusDiv.textContent = "Error saving scan!";
+                console.error("Error:", error);
+                isProcessing = false;
+            });
+        }
+
+        // Initialize the scanner
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+</html>
