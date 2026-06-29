@@ -39,21 +39,27 @@
             if (isProcessing) return; // Prevent rapid duplicate scans
             isProcessing = true;
             
+            // --- NEW: VIBRATION FEEDBACK ---
+            // Checks if the device supports vibration, then triggers a 200ms buzz
+            if (navigator.vibrate) {
+                navigator.vibrate(200); 
+            }
+            // -------------------------------
+            
             const workstationId = document.getElementById('workstation').value;
             statusDiv.textContent = "Processing " + decodedText + "...";
             statusDiv.className = "scanning";
 
-            // Send data to Google Sheets
+            // Send data to Google Sheets automatically
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Required for Google Apps Script requests from a browser
+                mode: 'no-cors', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     workstationId: workstationId,
                     productId: decodedText
                 })
             }).then(() => {
-                // Since no-cors hides the exact response body, we assume success if it doesn't throw
                 statusDiv.textContent = "Scanned: " + decodedText;
                 statusDiv.className = "success";
                 
