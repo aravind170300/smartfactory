@@ -3,30 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Floor Tracker</title>
+    <title>InTra Lab | Shop Floor Tracker</title>
+    
     <script src="https://unpkg.com/html5-qrcode"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
-        select { width: 100%; padding: 15px; margin-bottom: 20px; font-size: 16px; }
-        #reader { width: 100%; margin-bottom: 20px; }
-        #status { padding: 15px; text-align: center; font-weight: bold; font-size: 18px; }
-        .success { background-color: #d4edda; color: #155724; }
-        .scanning { background-color: #e2e3e5; color: #383d41; }
+        /* Smart Factory Color Variables */
+        :root {
+            --primary: #1e3a8a; /* Deep Industrial Blue */
+            --secondary: #3b82f6; /* Tech Blue */
+            --bg-color: #f1f5f9; /* Slate Gray Background */
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --success-bg: #d1fae5;
+            --success-border: #10b981;
+            --success-text: #065f46;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-dark); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 30px 15px; 
+            margin: 0; 
+        }
+
+        /* Branding Header */
+        .header { text-align: center; margin-bottom: 25px; width: 100%; max-width: 500px; }
+        .header h1 { color: var(--primary); margin: 0; font-size: 32px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .header p { margin: 8px 0 0 0; color: var(--text-light); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+
+        /* Main App Card */
+        .card { 
+            background: var(--card-bg); 
+            width: 100%; 
+            max-width: 500px; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1); 
+            padding: 25px; 
+            box-sizing: border-box; 
+        }
+
+        /* Input Styling with Icons */
+        .input-group { position: relative; margin-bottom: 25px; }
+        .input-group i { position: absolute; left: 15px; top: 16px; color: var(--secondary); font-size: 18px; }
+        select { 
+            width: 100%; 
+            padding: 14px 14px 14px 45px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 10px; 
+            font-size: 16px; 
+            color: var(--text-dark);
+            background: #f8fafc; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: border-color 0.3s ease;
+            cursor: pointer;
+        }
+        select:focus { border-color: var(--secondary); }
+
+        /* Scanner Box Styling */
+        #reader { border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0; margin-bottom: 20px; }
+        
+        /* Status Bar Styling */
+        #status { 
+            padding: 16px; 
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 16px; 
+            border-radius: 10px; 
+            transition: all 0.3s ease; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .scanning { background-color: #f8fafc; color: var(--text-light); border: 2px dashed #cbd5e1; }
+        .success { background-color: var(--success-bg); color: var(--success-text); border: 2px solid var(--success-border); }
     </style>
 </head>
 <body>
 
-    <h2>Workstation Scanner</h2>
-    
-    <label for="workstation">Select Workstation:</label>
-    <select id="workstation">
-        <option value="WS-01">Workstation 01</option>
-        <option value="WS-02">Workstation 02</option>
-        <option value="WS-03">Workstation 03</option>
-    </select>
+    <div class="header">
+        <h1><i class="fa-solid fa-industry"></i> InTra Lab</h1>
+        <p>Industrial Transformation Lab</p>
+    </div>
 
-    <div id="reader"></div>
-    <div id="status" class="scanning">Waiting for scan...</div>
+    <div class="card">
+        <div class="input-group">
+            <i class="fa-solid fa-microchip"></i>
+            <select id="workstation">
+                <option value="WS-01">Workstation 01</option>
+                <option value="WS-02">Workstation 02</option>
+                <option value="WS-03">Workstation 03</option>
+                <option value="WS-04">Workstation 04</option>
+                <option value="WS-05">Workstation 05</option>
+                <option value="WS-06">Workstation 06</option>
+                <option value="WS-07">Workstation 07</option>
+                <option value="WS-08">Workstation 08</option>
+                <option value="WS-09">Workstation 09</option>
+                <option value="WS-10">Workstation 10</option>
+                <option value="WS-11">Workstation 11</option>
+                <option value="WS-12">Workstation 12</option>
+                <option value="WS-13">Workstation 13</option>
+                <option value="WS-14">Workstation 14</option>
+            </select>
+        </div>
+
+        <div id="reader"></div>
+        
+        <div id="status" class="scanning">
+            <i class="fa-solid fa-qrcode"></i> Waiting for product scan...
+        </div>
+    </div>
 
     <script>
         // --- PASTE YOUR GOOGLE APPS SCRIPT URL HERE ---
@@ -36,21 +131,20 @@
         let isProcessing = false;
 
         function onScanSuccess(decodedText, decodedResult) {
-            if (isProcessing) return; // Prevent rapid duplicate scans
+            if (isProcessing) return; 
             isProcessing = true;
             
-            // --- NEW: VIBRATION FEEDBACK ---
-            // Checks if the device supports vibration, then triggers a 200ms buzz
+            // Vibration Feedback
             if (navigator.vibrate) {
                 navigator.vibrate(200); 
             }
-            // -------------------------------
             
             const workstationId = document.getElementById('workstation').value;
-            statusDiv.textContent = "Processing " + decodedText + "...";
+            
+            // Update UI to show processing state with an animation icon
+            statusDiv.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processing ${decodedText}...`;
             statusDiv.className = "scanning";
 
-            // Send data to Google Sheets automatically
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors', 
@@ -60,25 +154,24 @@
                     productId: decodedText
                 })
             }).then(() => {
-                statusDiv.textContent = "Scanned: " + decodedText;
+                // Update UI to show success state with a checkmark icon
+                statusDiv.innerHTML = `<i class="fa-solid fa-circle-check"></i> Scanned: ${decodedText}`;
                 statusDiv.className = "success";
                 
-                // Reset scanner after 3 seconds
                 setTimeout(() => {
-                    statusDiv.textContent = "Waiting for next scan...";
+                    statusDiv.innerHTML = `<i class="fa-solid fa-qrcode"></i> Waiting for product scan...`;
                     statusDiv.className = "scanning";
                     isProcessing = false;
                 }, 3000);
             }).catch(error => {
-                statusDiv.textContent = "Error saving scan!";
+                statusDiv.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Error saving scan!`;
                 console.error("Error:", error);
                 isProcessing = false;
             });
         }
 
-        // Initialize the scanner
         const html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
+            "reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
         html5QrcodeScanner.render(onScanSuccess);
     </script>
 </body>
